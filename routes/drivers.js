@@ -31,9 +31,14 @@ router.get('/travelerInfo/:travelerInfoId', async (req, res) => {
 router.get('/start/:courseId', async (req, res) => {
   const filter = {courseId: req.params.courseId}
   const update = {"$set": {status: status.start}}
+<<<<<<< Updated upstream
 
   let result = await TravelerInfo.findAndUpdate(filter, update, {new: true})
   res.send(result);
+=======
+  await TravelerInfo.updateMany(filter, update, {new: true})
+  res.send("success");
+>>>>>>> Stashed changes
 })
 
 // 어르신 탑승
