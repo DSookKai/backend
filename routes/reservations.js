@@ -3,7 +3,9 @@ var router = express.Router();
 
 "use strict";
 
+const User = require('../models/user.js')
 const Course = require('../models/course.js')
+const TravelerInfo = require('../models/travelerInfo.js')
 
 const { TextAnalyticsClient, AzureKeyCredential } = require("@azure/ai-text-analytics");
 const key = '6474e879de8f48cc94417ab7b6252983';
@@ -29,25 +31,23 @@ router.post('/date', async function(req, res, next) {
   ];
   var entities = await entityRecognition(entityInputs, textAnalyticsClient);
 
-  var date = "2021";
+  var dateNum = "2021";
   entities.forEach(entity => {
     if (entity.category=="Quantity") {
       switch(entity.subCategory){
         case "Number":
           if (entity.text.length == 1) {
-            date += "0";
+            dateNum += "0";
           }
-          date += entity.text;
+          dateNum += entity.text;
         case "Ordinal":
-          date += entity.text.substring(0,entity.text.length-1);
+          dateNum += entity.text.substring(0,entity.text.length-1);
       }
     }
   }); 
   
-  const dayCourses = await Course.find({date: date}).exec();
-  console.log("UPDATE");
-  console.log(dayCourses);
-  var result = {"date": date, "course": dayCourses};
+  const dayCourses = await Course.find({date: dateNum}).exec();
+  var result = {"date": dateNum, "place":dayCourses[0].courseName, "course": dayCourses};
   res.send(result);
   res.end();
 });
@@ -107,7 +107,40 @@ router.post('/companion', async function(req, res, next) {
 //해당 예약 저장
 router.post('/confirm', async function(req, res, next) {
   var text = req.body.text;
-  console.log(text);
+  var info = req.body.reservation;
+  const answerArray = ["응", "네", "좋아", "해줘", "그래", "오키"];
+
+  if (answerArray.includes(text)) {
+    const {phoneNumber, companion, place, date, time} = info
+
+    const targetUser = await User.findOne({phoneNum: phoneNumber}).exec();
+    const targetCourse = await Course.findOne({courseName: place}).exec();
+
+    const userId = targetUser._id;
+    const courseId = targetCourse._id;
+    let travelerInfo = new TravelerInfo({
+      userId, companion, courseId, status: 1
+    })
+  
+    await travelerInfo.save();
+  
+    const u_filter = { _id: userId}
+    const u_update = { "$push": {acceptedInfo: courseId}}
+  
+    // 유저 업데이트
+    await User.findOneAndUpdate(u_filter, u_update)
+  
+    const c_filter = { _id: courseId }
+    const c_update = { "$push": {travelerInfo: travelerInfo._id} }
+  
+    // 코스 업데이트
+    await Course.findOneAndUpdate(c_filter, c_update)
+  
+    res.send("success");
+  }else{
+    res.send("fail");
+  }
+  res.end();
 });
 
 module.exports = router;
