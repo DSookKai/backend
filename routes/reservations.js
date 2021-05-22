@@ -143,4 +143,33 @@ router.post('/confirm', async function(req, res, next) {
   res.end();
 });
 
+//완료된 예약 조회
+router.post('/list', async function(req, res, next) {
+  var phoneNumber = req.body.phoneNumber;
+  const targetUser = await User.findOne({phoneNum: phoneNumber}).exec();
+  const targetUserId = targetUser._id;
+
+  const reservations = await TravelerInfo.find({userId: targetUserId}).exec();
+  var reservationList = new Array();
+
+  const reservationInfo = async (reservation) => {
+    var resv = new Object();
+    resv.companion = reservation.companion;
+    
+    var courseId = reservation.courseId;
+    var targetCourse = await Course.findOne({_id:courseId}).exec();
+    resv.place = targetCourse.courseName;
+    resv.date = targetCourse.date;
+    resv.time = targetCourse.courseTime;
+    reservationList.push(resv);
+  }
+  
+  reservations.forEach(reservation => {
+    reservationInfo(reservation);
+  });
+
+  res.send({reservations: reservationList});
+  res.end();
+});
+
 module.exports = router;
