@@ -172,4 +172,17 @@ router.post('/list', async function(req, res, next) {
   res.end();
 });
 
+//예약 삭제
+router.post('/delete', async function(req, res, next) {
+  var phoneNumber = req.body.phoneNumber;
+  var targetCourseId = req.body.courseId;
+  const targetUser = await User.findOne({phoneNum: phoneNumber}).exec();
+  const targetUserId = targetUser._id;
+
+  const reservations = await TravelerInfo.deleteOne({userId: targetUserId, courseId: targetCourseId});
+
+  res.send("success");
+  res.end();
+});
+
 module.exports = router;
