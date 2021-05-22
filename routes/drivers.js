@@ -31,6 +31,7 @@ router.get('/travelerInfo/:travelerInfoId', async (req, res) => {
 router.get('/start/:courseId', async (req, res) => {
   const filter = {courseId: req.params.courseId}
   const update = {"$set": {status: status.start}}
+  // TODO 푸시 보내기
 
   let result = await TravelerInfo.findAndUpdate(filter, update, {new: true})
   res.send(result);
@@ -40,6 +41,8 @@ router.get('/start/:courseId', async (req, res) => {
 router.get('/board/:courseId/:id', async (req, res) => {
   const filter = {courseId: req.params.courseId, userId: req.params.id}
   const update = {"$set": {status: status.onBoard}}
+  
+  // TODO 푸시 보내기
 
   let result = await TravelerInfo.findOneAndUpdate(filter, update, {new: true})
   res.send(result);
@@ -49,6 +52,7 @@ router.get('/board/:courseId/:id', async (req, res) => {
 router.get('/attraction/:courseId/:id', async (req, res) => {
   const filter = {courseId: req.params.courseId, userId: req.params.id}
   const update = {"$set": {status: status.arrivedCourseAttraction}}
+  // TODO 푸시 보내기
 
   let result = await TravelerInfo.findOneAndUpdate(filter, update, {new: true})
   res.send(result);
@@ -58,6 +62,7 @@ router.get('/attraction/:courseId/:id', async (req, res) => {
 router.get('/arrive-home/:courseId/:id', async (req, res) => {
   const filter = {courseId: req.params.courseId, userId: req.params.id}
   const update = {"$set": {status: status.arrivedHome}}
+  // TODO 푸시 보내기
 
   let result = await TravelerInfo.findOneAndUpdate(filter, update, {new: true})
   res.send(result);
@@ -67,6 +72,7 @@ router.get('/arrive-home/:courseId/:id', async (req, res) => {
 router.get('/no-show/:courseId/:id', async (req, res) => {
   const filter = {courseId: req.params.courseId, userId: req.params.id}
   const update = {"$set": {status: status.noShow}}
+  // TODO 푸시 보내기
 
   let result = await TravelerInfo.findOneAndUpdate(filter, update, {new: true})
   res.send(result);
