@@ -5,6 +5,9 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const mongoose = require('mongoose')
 
+require('dotenv').config()
+
+
 mongoose.connect('mongodb://localhost/junction', {useNewUrlParser: true, useUnifiedTopology: true});
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -33,7 +36,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/user', usersRouter);
 app.use('/course', coursesRouter);
 app.use('/reservation', reservationRouter);
-
 app.use('/driver', driverRouter);
 
 // catch 404 and forward to error handler
