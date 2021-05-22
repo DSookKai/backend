@@ -16,6 +16,7 @@ db.once('open', function() {
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var coursesRouter = require('./routes/courses');
+var reservationRouter = require('./routes/reservations');
 
 var app = express();
 
@@ -33,6 +34,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/user', usersRouter);
 app.use('/course', coursesRouter);
+app.use('/reservation', reservationRouter);
 
 
 // catch 404 and forward to error handler
