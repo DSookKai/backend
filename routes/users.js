@@ -9,6 +9,8 @@ const Certification = require('../models/certification.js')
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId
 
+require('dotenv').config();
+
 // 모든 유저 조회
 router.get('/', async (req, res, next) => {
   const result = await User.find().exec()
@@ -93,23 +95,44 @@ router.get('/course/:courseId', async (req, res) => {
 router.get('/sms/:phoneNum', async function(req, res, next) {
   var phoneNumber = req.params.phoneNum;
 
-  let verifyCode;
+  let verifyCode = "";
   for (let i = 0; i < 6; i++) {
     verifyCode += parseInt(Math.random() * 10);
   }
 
   const certification = new Certification({
-    phoneNumber, verifyCode
+    phoneNum: phoneNumber, verifyCode
   })
 
-  //발송
-  console.log("발송");
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  
+  var sendPhoneNumber = "+82";
+  sendPhoneNumber += phoneNumber.substring(1,phoneNumber.length);
+  
+  var sendMessage = "[HappyBus] Your verification code is ";
+  sendMessage += verifyCode;
 
-  certification.save()
-  .then(data => { res.send(data); }) 
-  .catch(err => { 
-    res.status(500).send({ message: err.message || 'Certification failure.' }); 
-  });
+  //발송
+  const client = require('twilio')(accountSid, authToken);
+  client.messages
+    .create({
+      to: sendPhoneNumber,
+      from: '+17606546588',
+      body: sendMessage,
+    })
+    .then(message => {
+      console.log(message.sid)
+
+      certification.save()
+        .then(data => { res.send(data); }) 
+        .catch(err => { 
+          res.status(500).send({ message: err.message || 'Certification failure.' }); 
+      });
+    })
+    .catch(err => {
+      res.status(500).send({ message: err.message || 'Certification failure.' }); 
+    });
 })
 
 // SMS 인증 확인
@@ -117,8 +140,8 @@ router.post('/sms/confirm', async function(req, res, next) {
   var phoneNumber = req.body.phoneNumber;
   var code = req.body.code;
 
-  const targetCode = await Certification.findOne({phoneNumber: phoneNumber}).exec();
-  if (targetCode.verifyCode == code) {
+  const targetCode = await Certification.findOne({phoneNum: phoneNumber}).exec();
+  if (targetCode && targetCode.verifyCode == code) {
     res.send("success");
   }else{
     res.send("fail");
