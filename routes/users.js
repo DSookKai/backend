@@ -32,6 +32,12 @@ router.get('/guardian-phone-num/:guardianPhoneNum', async (req, res) => {
   res.json(result)
 })
 
+
+router.get('/update/guardian-phone-num/:phoneNum/:guardianPhoneNum', async (req, res) => {
+  const result = await User.findOneAndUpdate({phoneNum: req.params.phoneNum}, {guardianPhoneNum: req.params.guardianPhoneNum}, {new: true})
+  res.json(result)
+})
+
 // 회원가입
 router.post('/register', (req, res, next) => {
   const { userName, phoneNum, birth, location, guardianPhoneNum} = req.body
