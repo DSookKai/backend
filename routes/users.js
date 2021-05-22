@@ -4,6 +4,7 @@ var router = express.Router();
 const User = require('../models/user.js')
 const Course = require('../models/course.js')
 const TravelerInfo = require('../models/travelerInfo.js')
+const Certification = require('../models/certification.js')
 
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId
@@ -87,5 +88,42 @@ router.get('/course/:courseId', async (req, res) => {
   const result = await User.find({acceptedInfo: req.params.courseId}).exec()
   res.json(result)
 })
+
+// SMS 인증
+router.get('/sms/:phoneNum', async function(req, res, next) {
+  var phoneNumber = req.params.phoneNum;
+
+  let verifyCode;
+  for (let i = 0; i < 6; i++) {
+    verifyCode += parseInt(Math.random() * 10);
+  }
+
+  const certification = new Certification({
+    phoneNumber, verifyCode
+  })
+
+  //발송
+  console.log("발송");
+
+  certification.save()
+  .then(data => { res.send(data); }) 
+  .catch(err => { 
+    res.status(500).send({ message: err.message || 'Certification failure.' }); 
+  });
+})
+
+// SMS 인증 확인
+router.post('/sms/confirm', async function(req, res, next) {
+  var phoneNumber = req.body.phoneNumber;
+  var code = req.body.code;
+
+  const targetCode = await Certification.findOne({phoneNumber: phoneNumber}).exec();
+  if (targetCode.verifyCode == code) {
+    res.send("success");
+  }else{
+    res.send("fail");
+  }
+})
+
 
 module.exports = router;
