@@ -3,6 +3,8 @@ var router = express.Router();
 
 "use strict";
 
+const Course = require('../models/course.js')
+
 const { TextAnalyticsClient, AzureKeyCredential } = require("@azure/ai-text-analytics");
 const key = '6474e879de8f48cc94417ab7b6252983';
 const endpoint = 'https://pikurate.cognitiveservices.azure.com/';
@@ -19,6 +21,7 @@ router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
 
+// 희망하는 날짜 추출 및 해당 날짜의 일정 return
 router.post('/date', async function(req, res, next) {
   var text = req.body.text;
   const entityInputs = [
@@ -46,6 +49,7 @@ router.post('/date', async function(req, res, next) {
   res.end();
 });
 
+// 희망 시간 추출
 router.post('/time', async function(req, res, next) {
   var text = req.body.text;
   const entityInputs = [
@@ -78,6 +82,7 @@ router.post('/time', async function(req, res, next) {
   res.end();
 });
 
+// 동행자 명수 추출
 router.post('/companion', async function(req, res, next) {
   var text = req.body.text;
   const entityInputs = [
@@ -97,6 +102,7 @@ router.post('/companion', async function(req, res, next) {
   res.end();
 });
 
+//해당 예약 저장
 router.post('/confirm', async function(req, res, next) {
   var text = req.body.text;
   console.log(text);
