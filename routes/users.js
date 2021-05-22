@@ -5,6 +5,9 @@ const User = require('../models/user.js')
 const Course = require('../models/course.js')
 const TravelerInfo = require('../models/travelerInfo.js')
 
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId
+
 // 모든 유저 조회
 router.get('/', async (req, res, next) => {
   const result = await User.find().exec()
@@ -48,11 +51,21 @@ router.post('/register', (req, res, next) => {
 router.post('/join', async (req, res, next) => {
   const {userId, companion, courseId} = req.body
 
+  let duplicate = await TravelerInfo.find({userId, courseId}).exec()
+  console.warn(duplicate)
+  if (duplicate && duplicate.length > 0)
+  {
+    console.error("cannot join twice")
+    res.send("cannot join twice")
+    return;
+  }
+
   let travelerInfo = new TravelerInfo({
-    userId, companion, courseId, status: 1
+    userId, companion, courseId
   })
 
   await travelerInfo.save();
+  // console.log(travelerInfo)
 
   const u_filter = { _id: userId}
   const u_update = { "$push": {acceptedInfo: courseId}}
@@ -69,5 +82,10 @@ router.post('/join', async (req, res, next) => {
   res.send("success")
 })
 
+// 특정 코스에 참여하신 어르신 조회
+router.get('/course/:courseId', async (req, res) => {
+  const result = await User.find({acceptedInfo: req.params.courseId}).exec()
+  res.json(result)
+})
 
 module.exports = router;
