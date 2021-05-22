@@ -44,7 +44,10 @@ router.post('/date', async function(req, res, next) {
     }
   }); 
   
-  var result = {"date": date}
+  const dayCourses = await Course.find({date: date}).exec();
+  console.log("UPDATE");
+  console.log(dayCourses);
+  var result = {"date": date, "course": dayCourses};
   res.send(result);
   res.end();
 });
@@ -75,7 +78,6 @@ router.post('/time', async function(req, res, next) {
       }
     }
   });
-  time += ":00"; 
   
   var result = {"time": time};
   res.send(result);
