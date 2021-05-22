@@ -143,32 +143,25 @@ router.post('/confirm', async function(req, res, next) {
   res.end();
 });
 
-//완료된 예약 조회
-router.post('/list', async function(req, res, next) {
-  var phoneNumber = req.body.phoneNumber;
+// 완료된 예약 조회
+router.get('/list/:phoneNum', async function(req, res, next) {
+  var phoneNumber = req.params.phoneNum;
   const targetUser = await User.findOne({phoneNum: phoneNumber}).exec();
   const targetUserId = targetUser._id;
 
-  const reservations = await TravelerInfo.find({userId: targetUserId}).exec();
-  var reservationList = new Array();
-
-  const reservationInfo = async (reservation) => {
-    var resv = new Object();
-    resv.companion = reservation.companion;
-    
-    var courseId = reservation.courseId;
-    var targetCourse = await Course.findOne({_id:courseId}).exec();
-    resv.place = targetCourse.courseName;
-    resv.date = targetCourse.date;
-    resv.time = targetCourse.courseTime;
-    reservationList.push(resv);
-  }
+  const reservationData = await TravelerInfo.find({userId: targetUserId}).populate('userId').populate('courseId').exec();
   
-  reservations.forEach(reservation => {
-    reservationInfo(reservation);
-  });
+  const reservations = reservationData.map((data) => {
+    return {
+      place: data.courseId.courseName,
+      date: data.courseId.date,
+      time: data.courseId.courseTime,
+      companion: data.companion,
+      courseId: data.courseId._id,
+    }
+  })
 
-  res.send({reservations: reservationList});
+  res.json(reservations);
   res.end();
 });
 
