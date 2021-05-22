@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
+  _id: String,
   userName: String,
   acceptedInfo: [{type: mongoose.Schema.Types.ObjectId, ref: 'Course'}],
   phoneNum: String,

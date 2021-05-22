@@ -9,6 +9,7 @@ export const status = {
 }
 
 const courseSchema = new mongoose.Schema({
+  _id: String,
   date: String,
   userInfo: { 
     type: [
