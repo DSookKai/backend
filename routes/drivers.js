@@ -14,6 +14,21 @@ router.get('/travelerInfo', async (req, res) => {
   res.json(result)
 })
 
+router.post('/travelerInfo', async (req, res) => {
+  const { userIds, courseId } = req.body
+  const filter = {courseId, userId: { "$in": userIds}}
+  const populatedTravelerInfos = await TravelerInfo.find(filter).populate('userId').exec()
+  const result = populatedTravelerInfos.map(data => {
+    return {
+      userName: data.userId.userName,
+      companion: data.companion,
+      location: data.userId.location,
+    }
+  })
+
+  res.json(result);
+})
+
 router.get('/travelerInfo/:travelerInfoId', async (req, res) => {
   const result = await TravelerInfo.findById(req.params.travelerInfoId).exec()
   res.json(result)
