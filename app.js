@@ -4,8 +4,13 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const mongoose = require('mongoose')
+const cors = require('cors');
+const app = express();
 
 require('dotenv').config()
+
+// CORS 설정
+app.use(cors());
 
 
 mongoose.connect('mongodb://localhost/junction', {useNewUrlParser: true, useUnifiedTopology: true});
