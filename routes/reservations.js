@@ -8,8 +8,8 @@ const Course = require('../models/course.js')
 const TravelerInfo = require('../models/travelerInfo.js')
 
 const { TextAnalyticsClient, AzureKeyCredential } = require("@azure/ai-text-analytics");
-const key = '6474e879de8f48cc94417ab7b6252983';
-const endpoint = 'https://pikurate.cognitiveservices.azure.com/';
+const key = process.env.AZURE_KEY;
+const endpoint = process.env.AZURE_ENDPOINT;
 
 const textAnalyticsClient = new TextAnalyticsClient(endpoint,  new AzureKeyCredential(key));
 
